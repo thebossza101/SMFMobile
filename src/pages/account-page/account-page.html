@@ -6,13 +6,26 @@
 -->
 <ion-header>
 
-  <ion-navbar>
-    <ion-title>AccountPage</ion-title>
+  <ion-navbar color="royal">
+    <button ion-button icon-only menuToggle>
+        <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Account</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
-
+  <ion-list>
+    <ion-item [navPush]="INVOICEPage">
+        <h2>INVOICE</h2>
+   </ion-item>
+   <ion-item [navPush]="RECEIPTPage">
+       <h2>RECEIPT</h2>
+  </ion-item>
+  <ion-item [navPush]="PAYINPage">
+      <h2>PAYIN</h2>
+  </ion-item>
+   </ion-list>
 </ion-content>

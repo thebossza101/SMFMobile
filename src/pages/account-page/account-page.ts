@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
+import { INVOICEPage } from '../invoice-page/invoice-page';
+import { RECEIPTPage } from '../receipt-page/receipt-page';
+import { PAYINPage } from '../payin-page/payin-page';
 /*
   Generated class for the AccountPage page.
 
@@ -12,8 +15,14 @@ import { NavController } from 'ionic-angular';
   templateUrl: 'account-page.html'
 })
 export class AccountPage {
-
-  constructor(public navCtrl: NavController) {}
+  INVOICEPage:any;
+  RECEIPTPage:any;
+  PAYINPage:any;
+  constructor(public navCtrl: NavController) {
+    this.INVOICEPage = INVOICEPage;
+    this.RECEIPTPage = RECEIPTPage;
+    this.PAYINPage = PAYINPage;
+  }
 
   ionViewDidLoad() {
     console.log('Hello AccountPage Page');

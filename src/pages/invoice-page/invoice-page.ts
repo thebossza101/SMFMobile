@@ -1,19 +1,19 @@
 import { Component } from '@angular/core';
-import { NavController , AlertController  } from 'ionic-angular';
-
+import { NavController, AlertController } from 'ionic-angular';
 import { Network,SQLite } from 'ionic-native';
 
+
 /*
-  Generated class for the BookingPage page.
+  Generated class for the INVOICEPage page.
 
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
 @Component({
-  selector: 'page-booking-page',
-  templateUrl: 'booking-page.html'
+  selector: 'page-invoice-page',
+  templateUrl: 'invoice-page.html'
 })
-export class BookingPage {
+export class INVOICEPage {
   fakeversion:any;
   fakedata:any;
   alert:any;
@@ -28,13 +28,13 @@ export class BookingPage {
     this.searchbarinput = ''
     this.fakeversion = 0.0001
     this.fakedata = [
-      {field1:'BAE16010275',field2:'Close',field3:'NOPPARAT'},
-      {field1:'BAE16010276',field2:'Close',field3:'AKKARAWAT'},
-      {field1:'BAE16010277',field2:'Close',field3:'AKKARAWAT'},
-      {field1:'BAE16010278',field2:'Close',field3:'PIYACHART'},
-      {field1:'BAE16010279',field2:'Close',field3:'PIYACHART'},
-      {field1:'BAE16010280',field2:'Close',field3:'PIYACHART'},
-      {field1:'BAE16010281',field2:'Close',field3:'PIYACHART'},
+      {field1:'INAE1500331',field2:'Confirm',field3:'26653.80'},
+      {field1:'INAE1500332',field2:'Confirm',field3:'321.00'},
+      {field1:'INAE1500333',field2:'Confirm',field3:'321.00'},
+      {field1:'INAE1500334',field2:'Confirm',field3:'321.00'},
+      {field1:'INAE1500335',field2:'Confirm',field3:'709.41'},
+      {field1:'INAE1500336',field2:'Confirm',field3:'1056.00'},
+      {field1:'INAE1500337',field2:'Confirm',field3:'521.00'},
     ];
     this.inishowdata();
   }
@@ -76,7 +76,7 @@ export class BookingPage {
                     name: "SQLAPP.db",
                     location: "default"
                 }).then(() => {
-                  return db.executeSql("SELECT * FROM table2",{}).then((data)=>{
+                  return db.executeSql("SELECT * FROM table4",{}).then((data)=>{
                             if (data.rows.length > 0) {
                                    var newitems = [];
                               //console.log(data.res.rows)
@@ -128,7 +128,7 @@ export class BookingPage {
                 name: "SQLAPP.db",
                 location: "default"
             }).then(() => {
-        let localversion = db.executeSql("SELECT VERSION FROM LOG_VERSIONS WHERE TABLES = 'table2'",{}).then((data)=>{
+        let localversion = db.executeSql("SELECT VERSION FROM LOG_VERSIONS WHERE TABLES = 'table4'",{}).then((data)=>{
                         if (data.rows.length > 0) {
                           console.log(data.rows.item(0));
                           return data.rows.item(0).VERSION;
@@ -160,7 +160,7 @@ export class BookingPage {
                 location: "default"
             }).then(()=>{
               //DELETE localSQL
-              let dellocalsql = db.executeSql("DELETE FROM table2",{}).then((res)=>{
+              let dellocalsql = db.executeSql("DELETE FROM table4",{}).then((res)=>{
               let data = onlinedata
               return data
               });
@@ -168,14 +168,14 @@ export class BookingPage {
               let insertsql = dellocalsql.then((data)=>{
                 data.forEach(data => {
                   var data_sql = data;
-                db.executeSql("INSERT INTO table2 (field1,field2,field3) VALUES ('"+data_sql.field1+"','"+data_sql.field2+"','"+data_sql.field3+"')",{});
+                db.executeSql("INSERT INTO table4 (field1,field2,field3) VALUES ('"+data_sql.field1+"','"+data_sql.field2+"','"+data_sql.field3+"')",{});
                 });
                 return true
               })
               //get online version
               let onlineversion = this.fakeversion
               //updatelocalversion
-              let updatelocalversion = insertsql.then(()=>db.executeSql("UPDATE LOG_VERSIONS SET VERSION='"+onlineversion+"' WHERE TABLES='table2'",{}))
+              let updatelocalversion = insertsql.then(()=>db.executeSql("UPDATE LOG_VERSIONS SET VERSION='"+onlineversion+"' WHERE TABLES='table4'",{}))
               return updatelocalversion
 
             })
@@ -234,7 +234,7 @@ export class BookingPage {
                       location: "default"
                   }).then(()=>{
                     //DELETE localSQL
-                    let dellocalsql = db.executeSql("DELETE FROM table2 WHERE field1 = '"+item.field1+"'",{})
+                    let dellocalsql = db.executeSql("DELETE FROM table4 WHERE field1 = '"+item.field1+"'",{})
                     dellocalsql.then(()=>this.getlocalsql()).then((data)=>this.importitems(data)).then(()=>this.searchfuction())
 
                   })
@@ -242,15 +242,15 @@ export class BookingPage {
     }
     itemSel(item){
       //console.log(item);
-      //this.navCtrl.push(DetailsPage,{data:item,config:{page:'SALE',table:'table2'}});
+      //this.navCtrl.push(DetailsPage,{data:item,config:{page:'SALE',table:'table4'}});
     }
 
 
   ionViewDidLoad() {
-    console.log('Hello BOOKING Page');
+    console.log('Hello INVOICE Page');
   }
   ionViewDidEnter(){
-    console.log('Hello BOOKING Page:ionViewDidEnter');
+    console.log('Hello INVOICE Page:ionViewDidEnter');
   }
 
 
