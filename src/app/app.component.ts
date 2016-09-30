@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
-import { StatusBar , SQLite } from 'ionic-native';
+import { StatusBar , SQLite, Push } from 'ionic-native';
 
 //import { Storage } from '@ionic/storage';
 //import { HomePage } from '../pages/home/home';
@@ -24,10 +24,42 @@ export class MyApp {
     this.platform.ready().then(() => {
         this.createDB();
         this.checklogin();
+        this.push();
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
     });
+  }
+  push(){
+    let push = Push.init({
+        android: {
+            senderID: "493836334159"
+        },
+        ios: {
+            alert: "true",
+            badge: true,
+            sound: 'false'
+        },
+        windows: {}
+    });
+    Push.hasPermission().then((data)=>{
+      if (data.isEnabled) {
+      console.log('isEnabled');
+  }
+    })
+    push.on("registration",(data)=>{console.log(data.registrationId);})
+    push.on('notification', (data)=>{
+    console.log(data.message);
+    console.log(data.title);
+    console.log(data.count);
+    console.log(data.sound);
+    console.log(data.image);
+    console.log(data.additionalData);
+});
+push.on('error', (e)=> {
+console.log(e.message);
+});
+
   }
 
   createDB(){
