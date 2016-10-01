@@ -31,7 +31,14 @@
     "cordova-plugin-splashscreen",
     "cordova-plugin-statusbar",
     "ionic-plugin-keyboard",
-    "cordova-sqlite-storage"
+    "cordova-sqlite-storage",
+    {
+      "id": "phonegap-plugin-push",
+      "locator": "phonegap-plugin-push",
+      "variables": {
+        "SENDER_ID": "493836334159"
+      }
+    }
   ],
   "cordovaPlatforms": [
     {
