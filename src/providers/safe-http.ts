@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Request, Response, RequestOptionsArgs, Headers, URLSearchParams } from '@angular/http';
+import { Http, Request, RequestOptionsArgs, Headers, URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/map';
 
 import { NetworkService } from './network-service';
@@ -13,7 +13,7 @@ import { NetworkService } from './network-service';
 export class SafeHttp {
 
   constructor(public http: Http,public networkService: NetworkService) {
-    console.log('Hello SafeHttp Provider');
+//  console.log('Hello SafeHttp Provider');
   }
   public request(url: string | Request, options?: RequestOptionsArgs) {
     if (this.networkService.noConnection()) {
@@ -92,5 +92,25 @@ const headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded
 
 
   }
+    public newpostdata(url: string, data) {
+
+      return new Promise((resolve, reject) => {
+        if (this.networkService.noConnection()) {
+          this.networkService.showNetworkAlert();
+          reject('noNetworkConnection');
+        } else {
+    let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' });
+        this.http.post(url, JSON.stringify(data), { headers: headers }).map(res => res.json()).subscribe(data => {
+            resolve(data);
+          }, (er) => {
+            reject('er - > postdata');
+          });
+
+  }
+      });
+
+
+  }
+
 
 }

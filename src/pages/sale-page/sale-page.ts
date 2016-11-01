@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController } from 'ionic-angular';
+import { NavController, AlertController ,LoadingController } from 'ionic-angular';
 import { Network,SQLite } from 'ionic-native';
+
+import { SafeHttp } from '../../providers/safe-http';
 
 //import { DetailsPage } from '../details/details';
 /*
@@ -22,7 +24,13 @@ export class SalePage {
   items:any;
   searchbarinput:any
   initializeData:any
-  constructor(public navCtrl: NavController,public alertCtrl: AlertController) {
+  localversion:any
+  onlineversion:any
+  loading:any
+  constructor(public navCtrl: NavController,public alertCtrl: AlertController,public safeHttp: SafeHttp,public loadingCtrl: LoadingController) {
+    this.loading = this.loadingCtrl.create({
+    content: 'Please wait...'
+  });
     this.checked = {field1:true,field2:false,field3:false,};
     this.placeholdersearchbar = 'field1'
     this.searchbarinput = ''
@@ -42,13 +50,13 @@ export class SalePage {
     let online = this.checkonline();
     if(online == true){
         this.check_version().then((res)=>{
-                if(res == true){
+                if(res == '='){
 
                     this.getlocalsql().then((data)=>this.importitems(data)).then(()=>this.searchfuction())
 
                 }else{
-
-                    this.update_version().then(()=>this.getlocalsql()).then((data)=>{this.importitems(data)}).then(()=>this.searchfuction())
+                    this.loading.present();
+                    this.update_version().then(()=>this.getlocalsql()).then((data)=>{this.importitems(data)}).then(()=>{this.searchfuction();this.loading.dismiss();})
                 }
         });
 
@@ -131,28 +139,58 @@ export class SalePage {
         let localversion = db.executeSql("SELECT VERSION FROM LOG_VERSIONS WHERE TABLES = 'Table1'",{}).then((data)=>{
                         if (data.rows.length > 0) {
                           console.log(data.rows.item(0));
+                          this.localversion = data.rows.item(0).VERSION;
                           return data.rows.item(0).VERSION;
                         }
                       });
                       return  localversion.then((localversion)=>{
                           // get online version
                             //fakeversion this.fakeversion = 0.0001
-                      let onlineversion = this.fakeversion
+let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+let sql = "SELECT VERSION FROM MBLOGVERSION WHERE TABLENAME = 'SALE'";
+let data = {
+  sql,
+  mode:'1'
+}
+return this.safeHttp.newpostdata(url,data).then((res)=>{
+
+ // console.log(res);
+
+                      //let onlineversion = this.fakeversion
+                      this.onlineversion= res[0]['VERSION']
+                      let onlineversion = res[0]['VERSION']
                       //console.log(onlineversion+':'+localversion);
                       if(localversion == onlineversion){
-                      return true
-                      }else{
-                      return false
+                      return '='
+                      } else{
+                        if(localversion == 0){
+                          return '0'
+                        }
+                      return '!='
                       }
+})
                         })
             })
 
   }
   update_version(){
+   
+  
+let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+let sql = "SELECT DOCNO,DOCSTAT,DOCDATE FROM MBDATA WHERE DOCTYPE = 'SALE'";
+let data = {
+  sql,
+  mode:'1'
+}
+return this.safeHttp.newpostdata(url,data).then((res:any)=>{
+//console.log(res);
+
+
   //get online SQL
   // fakedata
-  let onlinedata = this.fakedata
+  //let onlinedata = this.fakedata
 
+  let onlinedata = res;
   //insert localSQL
   let db = new SQLite()
   return  db.openDatabase({
@@ -168,18 +206,19 @@ export class SalePage {
               let insertsql = dellocalsql.then((data)=>{
                 data.forEach(data => {
                   var data_sql = data;
-                db.executeSql("INSERT INTO Table1 (field1,field2,field3) VALUES ('"+data_sql.field1+"','"+data_sql.field2+"','"+data_sql.field3+"')",{});
+                db.executeSql("INSERT INTO Table1 (field1,field2,field3) VALUES ('"+data_sql.DOCNO+"','"+data_sql.DOCSTAT+"','"+data_sql.DOCDATE+"')",{});
                 });
                 return true
               })
               //get online version
-              let onlineversion = this.fakeversion
+              //let onlineversion = this.fakeversion
+              let onlineversion = this.onlineversion
               //updatelocalversion
               let updatelocalversion = insertsql.then(()=>db.executeSql("UPDATE LOG_VERSIONS SET VERSION='"+onlineversion+"' WHERE TABLES='Table1'",{}))
               return updatelocalversion
 
             })
-
+})
   }
 
 

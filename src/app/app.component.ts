@@ -1,37 +1,40 @@
-import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Component , ViewChild} from '@angular/core';
+import { Platform, NavController, Events } from 'ionic-angular';
 import { StatusBar , SQLite, Push } from 'ionic-native';
-
 //import { Storage } from '@ionic/storage';
 //import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';
 import { MenuPage } from '../pages/menu/menu';
 
+import { SafeHttp } from '../providers/safe-http';
 @Component({
-  template: `<ion-nav [root]="rootPage"></ion-nav>`
+  template: `<ion-nav #myNav [root]="rootPage"></ion-nav>`
 })
 export class MyApp {
+  @ViewChild('myNav') nav: NavController
   rootPage:any;
   platform:any
   database: SQLite;
   people: Array<Object>;
+  tokenid:any;
   //sql: Storage;
-  constructor(platform: Platform) {
+  constructor(platform: Platform,public safeHttp: SafeHttp,public events: Events) {
   this.platform = platform
   this.initialfunction();
   }
   initialfunction() {
     this.platform.ready().then(() => {
-        this.createDB();
-        this.checklogin();
-        this.push();
+        this.push().then(()=>this.createDB());
+        
+        
+      
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
     });
   }
   push(){
-    let push = Push.init({
+     let push = Push.init({
         android: {
             senderID: "493836334159"
         },
@@ -47,7 +50,11 @@ export class MyApp {
       console.log('isEnabled');
   }
     })
-    push.on("registration",(data)=>{console.log(data.registrationId);})
+    push.on("registration",(data)=>{
+      //console.log(data.registrationId);
+  this.tokenid = data.registrationId;
+  this.checklogin()
+  })
     push.on('notification', (data)=>{
     console.log(data.message);
     console.log(data.title);
@@ -55,11 +62,20 @@ export class MyApp {
     console.log(data.sound);
     console.log(data.image);
     console.log(data.additionalData);
+    let myParam = {
+
+name: "Bruce",
+
+age: 100
+
+}
+this.events.publish("myEvent",myParam);
+
 });
 push.on('error', (e)=> {
 console.log(e.message);
 });
-
+    return Promise.resolve(true);
   }
 
   createDB(){
@@ -68,7 +84,7 @@ console.log(e.message);
                 name: "SQLAPP.db",
                 location: "default"
             }).then(() => {
-                db.executeSql('CREATE TABLE IF NOT EXISTS Acc (USERNAME TEXT, STATUSLOGIN INT)',{})
+                db.executeSql('CREATE TABLE IF NOT EXISTS Acc (USERNAME TEXT, STATUSLOGIN INT,tokenid TEXT)',{})
                 db.executeSql('CREATE TABLE IF NOT EXISTS Table1 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)',{})
                 db.executeSql('CREATE TABLE IF NOT EXISTS Table2 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)',{})
                 db.executeSql('CREATE TABLE IF NOT EXISTS Table3 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)',{})
@@ -105,13 +121,11 @@ console.log(e.message);
                 })
 
 
-
+                return Promise.resolve(true);
 
             }, (error) => {
                 console.error("Unable to open database", error);
             });
-
-
   }
   checklogin() {
     let db = new SQLite();
@@ -121,13 +135,38 @@ console.log(e.message);
             }).then(() => {
                 db.executeSql("SELECT * FROM Acc WHERE STATUSLOGIN = '1'",{}).then((data) => {
                   if (data.rows.length > 0) {
+                    let data2 = data.rows.item(0)
+                    //console.log(data2.USERNAME);
+                    this.saveonlinetoken(this.tokenid,data2.USERNAME);
                     this.rootPage = MenuPage;
+
                   } else {
-                    this.rootPage = LoginPage;
+                    console.log(this.tokenid);
+                    this.nav.setRoot(LoginPage, {tokenid:this.tokenid})
+                   
                   }
                 })
 
             })
+  }
+  saveonlinetoken(tokenid,username){
+let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+let sql = "SELECT * FROM MBACCOUNT WHERE IDTOKEN = '"+ tokenid +"'";
+let data = {
+  sql,
+  mode:'1'
+} 
+this.safeHttp.newpostdata(url,data).then((res)=>{
+   if (!res[0]) {
+     let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+let sql = "INSERT INTO MBACCOUNT (USERNAME,IDTOKEN) VALUES ('"+ username +"','"+ tokenid +"');";
+let data = {
+  sql,
+  mode:'2'
+}
+this.safeHttp.newpostdata(url,data)
+                  } 
+})
   }
 
 }

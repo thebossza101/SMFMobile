@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, URLSearchParams } from '@angular/http';
+import { Http,} from '@angular/http';
 import 'rxjs/add/operator/map';
 
 import { SafeHttp } from './safe-http';
@@ -15,7 +15,7 @@ export class Login {
 
   constructor(public http: Http, public safeHttp: SafeHttp) {
     this.data = null;
-    console.log('Hello Login Provider');
+    // console.log('Hello Login Provider');
 
   }
   checkuser(user: string, pass: string) {

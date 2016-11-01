@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Http, Request, Response, RequestOptionsArgs } from '@angular/http';
-import {AlertController , NavController} from 'ionic-angular';
-import {Network, Diagnostic} from 'ionic-native';
+import { Http } from '@angular/http';
+import {AlertController } from 'ionic-angular';
+import {Network} from 'ionic-native';
 import 'rxjs/add/operator/map';
 
 /*
@@ -14,7 +14,7 @@ import 'rxjs/add/operator/map';
 export class NetworkService {
   public networkAlert: any;
   constructor(public http: Http,public alertCtrl: AlertController) {
-    console.log('Hello NetworkService Provider');
+   // console.log('Hello NetworkService Provider');
   }
   public noConnection() {
     return (Network.connection === 'none');
