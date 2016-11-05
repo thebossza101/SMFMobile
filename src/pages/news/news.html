@@ -1,0 +1,35 @@
+<!--
+  Generated template for the News page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+   <ion-navbar color="royal">
+
+
+
+    <button ion-button icon-only menuToggle>
+
+        <ion-icon name="menu"></ion-icon>
+
+    </button>
+    <ion-title>NEWs</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+<ion-list>
+
+    <ion-item *ngFor="let item of items">  
+
+        <h2>{{item.TITLE}}</h2>
+
+        <p>{{item.MSG}}</p>
+    </ion-item>
+
+  </ion-list>
+</ion-content>

@@ -3,6 +3,7 @@ import { NavController,Nav,Events } from 'ionic-angular';
 import { SQLite } from 'ionic-native';
 import { LoginPage } from '../login/login';
 import { TapsPage } from '../taps-page/taps-page';
+import { News } from '../News/News';
 import { SafeHttp } from '../../providers/safe-http';
 /*
   Generated class for the Menu page.
@@ -17,7 +18,7 @@ import { SafeHttp } from '../../providers/safe-http';
 export class MenuPage {
 @ViewChild(Nav) nav: Nav;
 pages: Array<{ title: string, component: any }>;
-rootPage: any = TapsPage;
+rootPage: any = News;
   tokenid:any;
   constructor(public navCtrl: NavController,public safeHttp: SafeHttp,public events: Events) {
       this.events.subscribe("myEvent",(object) => {
@@ -26,8 +27,8 @@ console.log(object);
 
 });
     this.pages = [
+      { title: 'News', component: News },
       { title: 'Browsedata', component: TapsPage },
-    //  { title: 'Page dos', component: '' },
     ];
   }
   openPage(page) {
@@ -49,6 +50,7 @@ console.log(object);
           storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='Table2'",{});
           storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='Table3'",{});
           storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='Table4'",{});
+          storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='All'",{});
            this.nav.setRoot(LoginPage,{tokenid:this.tokenid});
                 })
   

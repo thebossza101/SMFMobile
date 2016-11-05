@@ -6,6 +6,7 @@ import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';
 import { MenuPage } from '../pages/menu/menu';
 import { TapsPage } from '../pages/taps-page/taps-page';
+import { News } from '../pages/news/news';
 import { AccountPage } from '../pages/account-page/account-page';
 import { BLPage } from '../pages/bl-page/bl-page';
 import { BookingPage } from '../pages/booking-page/booking-page';
@@ -32,7 +33,8 @@ import { SafeHttp } from '../providers/safe-http';
     SalePage,
     INVOICEPage,
     RECEIPTPage,
-    PAYINPage
+    PAYINPage,
+    News
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -50,8 +52,9 @@ import { SafeHttp } from '../providers/safe-http';
     SalePage,
     INVOICEPage,
     RECEIPTPage,
-    PAYINPage
+    PAYINPage,
+    News
   ],
-  providers: [Login,NetworkService,SafeHttp]
+  providers: [Login, NetworkService, SafeHttp]
 })
-export class AppModule {}
+export class AppModule { }
