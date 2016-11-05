@@ -44,7 +44,7 @@ export class SalePage {
   }
   inishowdata() {
 this.loading.present();
-this.getdatalocal().then(()=>{this.loading.dismissAll();})
+this.getdatalocal().then(()=>{})
   }
  
   getdatalocal() {
@@ -80,10 +80,13 @@ this.getdatalocal().then(()=>{this.loading.dismissAll();})
             this.initializeData.push(data2);
           }
           this.items =  this.initializeData;
+          this.loading.dismissAll();
           return "1"
         }else{
+          this.loading.dismissAll();
           return "0"
         }
+
       }, (er) => { console.log('er SELECT'); console.log(er);return });
     })
   }
