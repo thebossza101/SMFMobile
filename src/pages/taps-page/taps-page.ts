@@ -8,6 +8,7 @@ import { SalePage } from '../sale-page/sale-page';
 
 import { Network, SQLite } from 'ionic-native';
 import { SafeHttp } from '../../providers/safe-http';
+
 /*
   Generated class for the TapsPage page.
 
@@ -40,7 +41,7 @@ export class TapsPage {
       content: 'Syncing Online Data,Please wait...'
     });
     this.eventsubscribe();
-    this.checkonline()
+    this.checkonline();
     this.tab1 = SalePage;
     this.tab2 = BookingPage;
     this.tab3 = BLPage;
@@ -59,6 +60,7 @@ export class TapsPage {
     if (Network.connection != 'none') {
       // console.log('online')
       // return true
+
       return this.getlocalversion()
     } else {
       //console.log('offline')
@@ -95,7 +97,7 @@ export class TapsPage {
   }
   getonlinedata() {
     let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
-    let sql = "SELECT MBDATA.* FROM MBDATA INNER JOIN MBLOGTABLE ON MBDATA.DOCNO = MBLOGTABLE.DOCNO WHERE PMKEY > '" + this.localversion + "' GROUP BY MBDATA.DOCNO,MBDATA.DOCTYPE,MBDATA.DOCSTAT,MBDATA.DOCDATE";
+    let sql = "SELECT MBDATA.DOCNO,MBDATA.DOCTYPE,MBDATA.DOCSTAT,MBDATA.DOCDATE,MBDATA.PDFNAME,MBDATA.STATUS,CAST(MBDATA.REMARK AS VARCHAR(max)) AS REMARK FROM MBDATA INNER JOIN MBLOGTABLE ON MBDATA.DOCNO = MBLOGTABLE.DOCNO WHERE PMKEY > '" + this.localversion + "' GROUP BY MBDATA.DOCNO,MBDATA.DOCTYPE,MBDATA.DOCSTAT,MBDATA.DOCDATE,MBDATA.PDFNAME,MBDATA.STATUS,CAST(MBDATA.REMARK AS VARCHAR(max))";
     let data = {
       sql,
       mode: '1'
@@ -138,17 +140,17 @@ export class TapsPage {
         let DOCDATE = this.datetomssqlformat(DOCDATE2);
         if (datas[i + 1]) {
           sqlDOCNO += "'" + data2.DOCNO + "',";
-          sqlinsert += "('" + data2.DOCTYPE + "','" + data2.DOCNO + "','" + data2.DOCSTAT + "','" + DOCDATE + "'),";
+          sqlinsert += "('" + data2.DOCTYPE + "','" + data2.DOCNO + "','" + data2.DOCSTAT + "','" + DOCDATE + "','" + data2.PDFNAME + "','" + data2.STATUS + "','" + data2.REMARK + "'),";
         } else {
           sqlDOCNO += "'" + data2.DOCNO + "'";
-          sqlinsert += "('" + data2.DOCTYPE + "','" + data2.DOCNO + "','" + data2.DOCSTAT + "','" + DOCDATE + "')";
+          sqlinsert += "('" + data2.DOCTYPE + "','" + data2.DOCNO + "','" + data2.DOCSTAT + "','" + DOCDATE + "','" + data2.PDFNAME + "','" + data2.STATUS + "','" + data2.REMARK + "')";
         }
       })
 
       let query = "DELETE FROM MBDATA WHERE DOCNO IN (" + sqlDOCNO + ")";
       // console.log(query)
       db.executeSql(query, {}).then((res) => {
-        let query2 = "INSERT INTO MBDATA (DOCTYPE,DOCNO,DOCSTAT,DOCDATE) VALUES " + sqlinsert;
+        let query2 = "INSERT INTO MBDATA (DOCTYPE,DOCNO,DOCSTAT,DOCDATE,PDFNAME,STATUS,REMARK) VALUES " + sqlinsert;
         //console.log(query2)
         db.executeSql(query2, {}).then((res) => {
           this.updatenotofication().then(() => this.updatelocalversion())
@@ -191,7 +193,7 @@ export class TapsPage {
   }
   updatenotofication() {
     let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
-    let sql = "SELECT DATA.DOCTYPE , COUNT(*) AS COUNTED FROM (SELECT MBDATA.* FROM MBDATA INNER JOIN MBLOGTABLE ON MBDATA.DOCNO = MBLOGTABLE.DOCNO WHERE PMKEY > '" + this.localversion + "' GROUP BY MBDATA.DOCNO,MBDATA.DOCTYPE,MBDATA.DOCSTAT,MBDATA.DOCDATE) AS DATA GROUP BY DATA.DOCTYPE";
+    let sql = "SELECT DATA.DOCTYPE , COUNT(*) AS COUNTED FROM (SELECT MBDATA.DOCNO,MBDATA.DOCTYPE,MBDATA.DOCSTAT,MBDATA.DOCDATE,MBDATA.PDFNAME,MBDATA.STATUS,CAST(MBDATA.REMARK AS VARCHAR(max)) AS REMARK FROM MBDATA INNER JOIN MBLOGTABLE ON MBDATA.DOCNO = MBLOGTABLE.DOCNO WHERE PMKEY > '" + this.localversion + "' GROUP BY MBDATA.DOCNO,MBDATA.DOCTYPE,MBDATA.DOCSTAT,MBDATA.DOCDATE,MBDATA.PDFNAME,MBDATA.STATUS,CAST(MBDATA.REMARK AS VARCHAR(max))) AS DATA GROUP BY DATA.DOCTYPE";
     let data = {
       sql,
       mode: '1'

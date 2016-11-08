@@ -50,8 +50,8 @@
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
-
-    <ion-item *ngFor="let item of items">
+<div *ngFor="let item of items">
+    <ion-item>
 
       <div (click)="itemSel(item)">
 
@@ -61,14 +61,49 @@
 
       </div>
 
+      <button ion-button item-right outline  *ngIf="item.PDFNAME" (click)="viewPDF(item.PDFNAME)">PDF</button>
+      <!--
       <button ion-button color="red" item-right clear icon-only (click)="itemDel(item)">
+   
 
       <ion-icon name='trash' is-active="false"></ion-icon>
 
     </button>
-
+   -->
     </ion-item>
-
+<div [hidden]="!hidecomment[item.DOCNO]" >
+      <ion-item>
+       STATUS
+      <ion-note item-right>
+    {{item.STATUS}}
+      </ion-note>
+  </ion-item>
+    <ion-item>
+        Comment
+        <ion-textarea rows="3" placeholder="Enter Comment description here..." [(ngModel)] = 'item.REMARK' ></ion-textarea>
+      </ion-item>
+      <ion-row no-padding>
+      <ion-col>
+        <button ion-button clear small color="primary" icon-left (click)="Approve(item)">
+         <ion-icon name="checkmark-circle"></ion-icon>
+          Approve
+        </button>
+      </ion-col>
+      <ion-col text-center>
+        <button ion-button clear small color="danger" icon-left (click)="Reject(item)">
+          <ion-icon name="close-circle"></ion-icon>
+          Reject
+        </button>
+      </ion-col>
+      <ion-col text-right>
+        <button ion-button clear small color="red" icon-left (click)="itemDel(item)">
+          <ion-icon name='trash' is-active="false"></ion-icon>
+          Delete
+        </button>
+      </ion-col>
+    </ion-row>
+</div>
+</div>
   </ion-list>
   <!--
    <ion-infinite-scroll (ionInfinite)="doInfinite($event)">

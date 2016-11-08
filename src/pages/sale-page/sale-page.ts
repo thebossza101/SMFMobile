@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, LoadingController,/* InfiniteScroll, */Refresher,Events } from 'ionic-angular';
-import { SQLite } from 'ionic-native';
+import { NavController, AlertController, LoadingController,/* InfiniteScroll, */Refresher,Events,ModalController } from 'ionic-angular';
+import { SQLite,InAppBrowser } from 'ionic-native';
 
 import { SafeHttp } from '../../providers/safe-http';
+import { Googleservice } from '../../providers/googleservice';
+import { Storage } from '@ionic/storage';
+//import { DetialPage } from '../detial/detial';
 
 //import { DetailsPage } from '../details/details';
 /*
@@ -29,7 +32,10 @@ export class SalePage {
   DOCTYPE: string
   RowsPerPage:any
   Page:any
-  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public safeHttp: SafeHttp, public loadingCtrl: LoadingController,public events: Events) {
+  access_token:any
+  hidecomment:any
+Commenttextarea:any
+  constructor(public navCtrl: NavController, public alertCtrl: AlertController, public safeHttp: SafeHttp, public loadingCtrl: LoadingController,public events: Events,public googleservice: Googleservice,public storage: Storage,public modalCtrl: ModalController) {
     this.DOCTYPE = 'SALE';
   //  this.RowsPerPage = 10;
     //this.Page = 1;
@@ -67,19 +73,25 @@ this.getdatalocal().then(()=>{})
        // }
       //  });
      // }
-     return db.executeSql("SELECT DOCNO,DOCSTAT,DOCDATE FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE +"'ORDER BY id DESC", {}).then((data) => {
+     return db.executeSql("SELECT * FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE +"'ORDER BY id DESC", {}).then((data) => {
        //return db.executeSql("SELECT DOCNO,DOCSTAT,DOCDATE FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE + sqlWHERE +"'ORDER BY id DESC LIMIT "+this.RowsPerPage+" OFFSET "+OFFSET, {}).then((data) => {
         //console.log(data);
         if (data.rows.length > 0) {
           this.initializeData = [];
+          this.hidecomment = {};
+          //this.Commenttextarea = {}
           for (let i = 0; i < data.rows.length; i++) {
            // console.log(data.rows.item(i))
             //this.items.push(data.rows.item(i));
            let data2 = data.rows.item(i);
            //data2['DOCDATE'] = this.datetomssqlformat(data2['DOCDATE']);
+           this.hidecomment[data2['DOCNO']] = false;
+          // this.Commenttextarea[data2['DOCNO']] = data2['REMARK']
             this.initializeData.push(data2);
           }
+        
           this.items =  this.initializeData;
+          
           this.loading.dismissAll();
           return "1"
         }else{
@@ -196,7 +208,14 @@ db.executeSql(query, {}).then((res) => {
   }
   itemSel(item) {
     //console.log(item);
-    //this.navCtrl.push(DetailsPage,{data:item,config:{page:'SALE',table:'TABLE1'}});
+   //this.navCtrl.push(DetialPage,{data:item});
+  // let profileModal = this.modalCtrl.create(DetialPage, { data: item });
+   //profileModal.present();
+if(this.hidecomment[item.DOCNO]){
+this.hidecomment[item.DOCNO] = false;
+}else{
+this.hidecomment[item.DOCNO] = true;
+}
   }
   searchfuction() {
   //  this.Page = 1;
@@ -266,6 +285,65 @@ db.executeSql(query, {}).then((res) => {
       // do something with object
 
     });
+
+  }
+  viewPDF(PDF){
+  this.storage.get('access_token').then((res_access_token) => {
+this.googleservice.googledriveSearchforFiles(PDF, res_access_token).then((res)=>{
+console.log(res);
+this.openPDF(res['files'][0]['webViewLink'])
+}).catch(()=>{
+    this.googleservice.handleAuthClick().then((access_token)=>{
+this.storage.set('access_token', access_token);
+this.googleservice.googledriveSearchforFiles(PDF, access_token).then((res)=>{
+console.log(res);
+this.openPDF(res['files'][0]['webViewLink'])
+})
+  })
+})
+});    
+  }
+
+  openPDF(webViewLink){
+     let target = '_blank'
+    let options = 'location=no'
+new InAppBrowser(webViewLink, target, options);
+  }
+  Approve(item){
+      let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+    let sql = "UPDATE MBDATA SET STATUS = 'Approved',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+    let data = {
+      sql,
+      mode: '2'
+    }
+  this.safeHttp.newpostdata(url, data).then((res) => {
+
+let db = new SQLite()
+db.openDatabase({
+      name: "SQLAPP.db",
+      location: "default"
+    }).then(() => {
+let query = "UPDATE MBDATA SET STATUS = 'Approved', REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+db.executeSql(query, {}).then((res) => {
+    this.items = this.items.filter(function(el) {
+if(el.DOCNO == item.DOCNO){
+    el.SATATUS = item.SATATUS;
+    el.REMARK = item.REMARK;
+}
+    return true;
+});
+    this.initializeData = this.initializeData.filter(function(el) {
+    if(el.DOCNO == item.DOCNO){
+    el.SATATUS = item.SATATUS;
+    el.REMARK = item.REMARK;
+}
+    return true;
+});
+})
+    })
+    })
+  }
+  Reject(item){
 
   }
   ionViewDidLoad() {
