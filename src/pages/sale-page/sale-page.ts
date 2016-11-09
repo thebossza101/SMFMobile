@@ -311,7 +311,7 @@ new InAppBrowser(webViewLink, target, options);
   }
   Approve(item){
       let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
-    let sql = "UPDATE MBDATA SET STATUS = 'Approved',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+    let sql = "UPDATE MBDATA SET STATUS = 'P',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
     let data = {
       sql,
       mode: '2'
@@ -323,28 +323,52 @@ db.openDatabase({
       name: "SQLAPP.db",
       location: "default"
     }).then(() => {
-let query = "UPDATE MBDATA SET STATUS = 'Approved', REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+let query = "UPDATE MBDATA SET STATUS = 'P', REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
 db.executeSql(query, {}).then((res) => {
-    this.items = this.items.filter(function(el) {
-if(el.DOCNO == item.DOCNO){
-    el.SATATUS = item.SATATUS;
-    el.REMARK = item.REMARK;
-}
-    return true;
-});
-    this.initializeData = this.initializeData.filter(function(el) {
-    if(el.DOCNO == item.DOCNO){
-    el.SATATUS = item.SATATUS;
-    el.REMARK = item.REMARK;
-}
-    return true;
-});
+    let index = this.items.findIndex(item2 => item2.DOCNO === item.DOCNO)
+    item.STATUS = 'P';
+    this.items.splice(index, 1, item);
+    this.initializeData.splice(index, 1, item);
+
 })
     })
     })
   }
+changeSTATUS(STATUS){
+if(STATUS == 'P'){
+return 'Approved'
+}else if(STATUS == 'R'){
+return 'Rejected'
+}else if(STATUS == 'A'){
+return 'Open'
+}else{
+  return STATUS
+}
+}
   Reject(item){
+ let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+    let sql = "UPDATE MBDATA SET STATUS = 'R',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+    let data = {
+      sql,
+      mode: '2'
+    }
+  this.safeHttp.newpostdata(url, data).then((res) => {
 
+let db = new SQLite()
+db.openDatabase({
+      name: "SQLAPP.db",
+      location: "default"
+    }).then(() => {
+let query = "UPDATE MBDATA SET STATUS = 'R', REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+db.executeSql(query, {}).then((res) => {
+    let index = this.items.findIndex(item2 => item2.DOCNO === item.DOCNO)
+    item.STATUS = 'R';
+    this.items.splice(index, 1, item);
+    this.initializeData.splice(index, 1, item);
+
+})
+    })
+    })
   }
   ionViewDidLoad() {
     console.log('Hello SalePage Page');

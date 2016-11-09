@@ -50,7 +50,7 @@
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
-<div *ngFor="let item of items">
+<div *ngFor="let item of items ; let i = index">
     <ion-item>
 
       <div (click)="itemSel(item)">
@@ -75,7 +75,7 @@
       <ion-item>
        STATUS
       <ion-note item-right>
-    {{item.STATUS}}
+    {{changeSTATUS(item.STATUS)}}
       </ion-note>
   </ion-item>
     <ion-item>
@@ -84,15 +84,17 @@
       </ion-item>
       <ion-row no-padding>
       <ion-col>
-        <button ion-button clear small color="primary" icon-left (click)="Approve(item)">
-         <ion-icon name="checkmark-circle"></ion-icon>
-          Approve
+    
+
+        <button ion-button clear small color="primary" icon-left (click)="Approve(item,i)">
+         <ion-icon [name]="item.STATUS == 'P' ? 'clipboard' : 'checkmark-circle'"></ion-icon>
+          {{ item.STATUS == 'P' ? 'Save' : 'Approve' }}
         </button>
       </ion-col>
       <ion-col text-center>
-        <button ion-button clear small color="danger" icon-left (click)="Reject(item)">
-          <ion-icon name="close-circle"></ion-icon>
-          Reject
+        <button ion-button clear small [color]="item.STATUS == 'R' ? 'primary' : 'danger'" icon-left (click)="Reject(item,i)">
+          <ion-icon [name]="item.STATUS == 'R' ? 'clipboard' : 'close-circle'"></ion-icon>
+          {{ item.STATUS == 'R' ? 'Save' : 'Reject' }}
         </button>
       </ion-col>
       <ion-col text-right>
