@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, LoadingController,/* InfiniteScroll, */Refresher,Events,ModalController } from 'ionic-angular';
+import { NavController, AlertController, LoadingController, InfiniteScroll, Refresher,Events,ModalController } from 'ionic-angular';
 import { SQLite,InAppBrowser } from 'ionic-native';
 
 import { SafeHttp } from '../../providers/safe-http';
@@ -37,12 +37,15 @@ export class SalePage {
 Commenttextarea:any
   constructor(public navCtrl: NavController, public alertCtrl: AlertController, public safeHttp: SafeHttp, public loadingCtrl: LoadingController,public events: Events,public googleservice: Googleservice,public storage: Storage,public modalCtrl: ModalController) {
     this.DOCTYPE = 'SALE';
-  //  this.RowsPerPage = 10;
-    //this.Page = 1;
+    this.RowsPerPage = 10;
+    this.Page = 1;
+    this.initializeData = [];
+    this.hidecomment = {};
     this.loading = this.loadingCtrl.create({
       content: 'Updated data,Please wait...'
     });
     this.checked = { DOCNO: true, DOCSTAT: false, DOCDATE: false, };
+    this.checked2 = ['DOCNO']
     this.placeholdersearchbar = 'DOCNO'
     this.searchbarinput = '';
     this.inishowdata();
@@ -59,26 +62,28 @@ this.getdatalocal().then(()=>{})
       name: "SQLAPP.db",
       location: "default"
     }).then(() => {
-      //let OFFSET = (this.Page*this.RowsPerPage)-this.RowsPerPage;
-     // let val = this.searchbarinput;
+      let OFFSET = (this.Page*this.RowsPerPage)-this.RowsPerPage;
+      let val = this.searchbarinput;
       //console.log(OFFSET);
-     // let sqlWHERE = "";
-     // if(val && val.trim() != ''){
-     //   sqlWHERE += " AND "
-     //   this.checked2.forEach((data,i) => {
-     //   if(this.checked2[i+1]){
-     //   sqlWHERE += " "+data+" LIKE %"+val+"% OR"
-     //   }else{
-     //   sqlWHERE += " "+data+" LIKE %"+val+"%"
-       // }
-      //  });
-     // }
-     return db.executeSql("SELECT * FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE +"'ORDER BY id DESC", {}).then((data) => {
-       //return db.executeSql("SELECT DOCNO,DOCSTAT,DOCDATE FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE + sqlWHERE +"'ORDER BY id DESC LIMIT "+this.RowsPerPage+" OFFSET "+OFFSET, {}).then((data) => {
+      let sqlWHERE = "";
+      if(val && val.trim() != ''){
+        sqlWHERE += " AND "
+        this.checked2.forEach((data,i) => {
+       if(this.checked2[i+1]){
+       sqlWHERE += " "+data+" LIKE '%"+val+"%' OR"
+       }else{
+       sqlWHERE += " "+data+" LIKE '%"+val+"%'"
+        }
+        });
+      }
+     //return db.executeSql("SELECT * FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE +"'ORDER BY id DESC", {}).then((data) => {
+       let sql = "SELECT DOCNO,DOCSTAT,DOCDATE FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE+"' " + sqlWHERE +" ORDER BY id DESC LIMIT "+this.RowsPerPage+" OFFSET "+OFFSET
+       //console.log(sql);
+       return db.executeSql(sql, {}).then((data) => {
         //console.log(data);
         if (data.rows.length > 0) {
-          this.initializeData = [];
-          this.hidecomment = {};
+          //this.initializeData = [];
+          //this.hidecomment = {};
           //this.Commenttextarea = {}
           for (let i = 0; i < data.rows.length; i++) {
            // console.log(data.rows.item(i))
@@ -218,9 +223,11 @@ this.hidecomment[item.DOCNO] = true;
 }
   }
   searchfuction() {
-  //  this.Page = 1;
-   // this.items = [];
-//this.getdatalocal()
+   this.Page = 1;
+    this.items = [];
+this.getdatalocal()
+this.initializeData = [];
+this.hidecomment = {};
  let val = this.searchbarinput
     if (val && val.trim() != '') {
       this.items = this.initializeData.filter((item) => {
@@ -244,7 +251,7 @@ this.hidecomment[item.DOCNO] = true;
     }
 
   }
-  /*
+  
   doInfinite(infiniteScroll: InfiniteScroll) {
     //console.log('Begin async operation');
     this.Page = this.Page + 1;
@@ -259,7 +266,7 @@ this.hidecomment[item.DOCNO] = true;
    
 
   }
-  */
+  
   
   doRefresh(refresher: Refresher) {
     console.log('DOREFRESH', refresher);
