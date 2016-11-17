@@ -5,7 +5,7 @@ import { StatusBar, SQLite, Push , Splashscreen} from 'ionic-native';
 //import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';
 import { MenuPage } from '../pages/menu/menu';
-
+import { Storage } from '@ionic/storage';
 import { SafeHttp } from '../providers/safe-http';
 @Component({
   template: `<ion-nav #myNav [root]="rootPage"></ion-nav>`
@@ -18,7 +18,7 @@ export class MyApp {
   people: Array<Object>;
   tokenid: any;
   //sql: Storage;
-  constructor(platform: Platform, public safeHttp: SafeHttp, public events: Events) {
+  constructor(platform: Platform, public safeHttp: SafeHttp, public events: Events,public storage: Storage) {
     this.platform = platform
     this.initialfunction();
   }
@@ -78,7 +78,7 @@ export class MyApp {
       name: "SQLAPP.db",
       location: "default"
     }).then(() => {
-      db.executeSql('CREATE TABLE IF NOT EXISTS Acc (USERNAME TEXT, STATUSLOGIN INT,tokenid TEXT)', {})
+      db.executeSql('CREATE TABLE IF NOT EXISTS Acc (USERNAME TEXT, STATUSLOGIN INT,tokenid TEXT,DEPT TEXT)', {})
       db.executeSql('CREATE TABLE IF NOT EXISTS Table1 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)', {})
       db.executeSql('CREATE TABLE IF NOT EXISTS Table2 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)', {})
       db.executeSql('CREATE TABLE IF NOT EXISTS Table3 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)', {})
@@ -142,6 +142,7 @@ export class MyApp {
           let data2 = data.rows.item(0)
           //console.log(data2.USERNAME);
           this.saveonlinetoken(this.tokenid, data2.USERNAME);
+          this.storage.set('USERNAME', data2.USERNAME);
           this.rootPage = MenuPage;
 
         } else {

@@ -77,7 +77,7 @@ this.getdatalocal().then(()=>{})
         });
       }
      //return db.executeSql("SELECT * FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE +"'ORDER BY id DESC", {}).then((data) => {
-       let sql = "SELECT DOCNO,DOCSTAT,DOCDATE FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE+"' " + sqlWHERE +" ORDER BY id DESC LIMIT "+this.RowsPerPage+" OFFSET "+OFFSET
+       let sql = "SELECT * FROM MBDATA WHERE DOCTYPE = '" + this.DOCTYPE+"' " + sqlWHERE +" ORDER BY id DESC LIMIT "+this.RowsPerPage+" OFFSET "+OFFSET
        //console.log(sql);
        return db.executeSql(sql, {}).then((data) => {
         //console.log(data);
@@ -186,7 +186,7 @@ this.getdatalocal().then(()=>{})
   }
   item2Del(DOCNO){
     let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
-    let sql = "DELETE FROM MBDATA WHERE DOCNO = '"+DOCNO+"'";
+    let sql = "DELETE FROM MBDATA WHERE DOCNO = '"+DOCNO+"';INSERT INTO MBLOGTABLE(DOCNO,MODE)VALUES('"+DOCNO+"','D')";
     let data = {
       sql,
       mode: '2'
@@ -318,13 +318,22 @@ new InAppBrowser(webViewLink, target, options);
   }
   Approve(item){
       let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
-    let sql = "UPDATE MBDATA SET STATUS = 'P',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+      let TITLE = item.DOCNO+' : Approved';
+      let MSG = item.REMARK;
+      let LINK = '';
+      let TYPELINK =''; 
+      if(item.PDFNAME){
+        LINK = item.PDFNAME;
+        TYPELINK = 'PDF'
+      }
+     
+    let sql = "UPDATE MBDATA SET STATUS = 'P',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"';INSERT INTO MBLOGTABLE(DOCNO,MODE)VALUES('"+item.DOCNO+"','P');INSERT INTO MBPUSHMSG(TITLE,MSG,LINK,TYPELINK)VALUES('"+TITLE+"','"+MSG+"','"+LINK+"','"+TYPELINK+"');INSERT INTO MBUSERMSG(MSGID,USERNAME) SELECT TOP 1 MBPUSHMSG.MSGID , MBUSER.USERNAME  FROM MBPUSHMSG,MBUSER WHERE MBUSER.DEPT = '"+this.DOCTYPE+"' ORDER BY MBPUSHMSG.MSGID DESC";
     let data = {
       sql,
       mode: '2'
     }
   this.safeHttp.newpostdata(url, data).then((res) => {
-
+this.pushnotification()
 let db = new SQLite()
 db.openDatabase({
       name: "SQLAPP.db",
@@ -354,13 +363,21 @@ return 'Open'
 }
   Reject(item){
  let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
-    let sql = "UPDATE MBDATA SET STATUS = 'R',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"'";
+      let TITLE = item.DOCNO+' : Rejected';
+      let MSG = item.REMARK;
+      let LINK = '';
+      let TYPELINK =''; 
+      if(item.PDFNAME){
+        LINK = item.PDFNAME;
+        TYPELINK = 'PDF'
+      }
+    let sql = "UPDATE MBDATA SET STATUS = 'R',REMARK = '"+item.REMARK+"' WHERE DOCNO = '"+item.DOCNO+"';INSERT INTO MBLOGTABLE(DOCNO,MODE)VALUES('"+item.DOCNO+"','R');INSERT INTO MBPUSHMSG(TITLE,MSG,LINK,TYPELINK)VALUES('"+TITLE+"','"+MSG+"','"+LINK+"','"+TYPELINK+"');INSERT INTO MBUSERMSG(MSGID,USERNAME) SELECT TOP 1 MBPUSHMSG.MSGID , MBUSER.USERNAME  FROM MBPUSHMSG,MBUSER WHERE MBUSER.DEPT = '"+this.DOCTYPE+"' ORDER BY MBPUSHMSG.MSGID DESC";  
     let data = {
       sql,
       mode: '2'
     }
   this.safeHttp.newpostdata(url, data).then((res) => {
-
+this.pushnotification()
 let db = new SQLite()
 db.openDatabase({
       name: "SQLAPP.db",
@@ -376,6 +393,13 @@ db.executeSql(query, {}).then((res) => {
 })
     })
     })
+  }
+  pushnotification(){
+ let url = 'http://072serv.com/etracking/index.php/moblieAPI/push2';
+    let data = {
+      DEPT: this.DOCTYPE
+    }
+  this.safeHttp.newpostdata(url, data)
   }
   ionViewDidLoad() {
     console.log('Hello SalePage Page');

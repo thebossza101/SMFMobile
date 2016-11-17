@@ -5,7 +5,7 @@ import { SafeHttp } from '../../providers/safe-http';
 //import { Login } from '../../providers/login';
 //import { NetworkService } from '../../providers/network-service';
 //import { SafeHttp } from '../../providers/safe-http';
-
+import { Storage } from '@ionic/storage';
 import { MenuPage } from '../menu/menu';
 /*
   Generated class for the Login page.
@@ -22,7 +22,7 @@ export class LoginPage {
   password:string = 'admin';
   sql: SQLite;
   tokenid:any;
-  constructor(public navCtrl: NavController, public navParams: NavParams,public safeHttp: SafeHttp) {
+  constructor(public navCtrl: NavController, public navParams: NavParams,public safeHttp: SafeHttp,public storage: Storage) {
     this.tokenid = this.navParams.get('tokenid');
     console.log(this.tokenid);
   }
@@ -42,7 +42,17 @@ alert('โปรดใส่ password')
 return
     }
     //this.login.checkuser(username,password).then((data)=>{console.log(data)}).catch((er)=>{console.log(er)});
-    //fake login
+      let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';
+    let sql = "SELECT DEPT FROM MBUSER WHERE USERNAME = '"+username+"' AND PASSWORD = '"+password+"'";
+    let data = {
+      sql,
+      mode: '1'
+    }
+  this.safeHttp.newpostdata(url, data).then((res:any)=>{
+
+    if(res.length > 0){
+  
+          //fake login
     this.sql = new SQLite();//เลือกฐานข้อมูล
     this.sql.openDatabase({
                 name: "SQLAPP.db",
@@ -50,10 +60,16 @@ return
             }).then(() => {
               
               this.sql.executeSql("DELETE FROM Acc",{})
-              this.sql.executeSql("INSERT INTO Acc (USERNAME,STATUSLOGIN,tokenid) VALUES ('"+username+"',1,'"+this.tokenid+"')",{});
+              this.sql.executeSql("INSERT INTO Acc (USERNAME,STATUSLOGIN,tokenid,DEPT) VALUES ('"+username+"',1,'"+this.tokenid+"','"+res[0]['DEPT']+"')",{});
+              this.storage.set('USERNAME', username);
               this.saveonlinetoken(this.tokenid,username)
               this.navCtrl.setRoot(MenuPage);
             })
+    }else{
+      alert('Username or Password is incorrect');
+    }
+  })
+  
   }
     saveonlinetoken(tokenid,username){
 let url = 'http://072serv.com/etracking/index.php/moblieAPI/qrysql';

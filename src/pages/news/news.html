@@ -24,11 +24,10 @@
 <ion-content padding>
 <ion-list>
 
-    <ion-item *ngFor="let item of items">  
-
+    <ion-item *ngFor="let item of items">
         <h2>{{item.TITLE}}</h2>
-
         <p>{{item.MSG}}</p>
+        <button ion-button item-right outline  *ngIf="item.LINK" (click)="viewLINK(item.LINK,item.TYPELINK)">VIEW</button>
     </ion-item>
 
   </ion-list>
