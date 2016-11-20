@@ -84,7 +84,8 @@ export class MyApp {
       db.executeSql('CREATE TABLE IF NOT EXISTS Table3 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)', {})
       db.executeSql('CREATE TABLE IF NOT EXISTS Table4 (id INTEGER PRIMARY KEY AUTOINCREMENT,field1 TEXT, field2 TEXT, field3 TEXT)', {})
       db.executeSql('CREATE TABLE IF NOT EXISTS MBDATA (id INTEGER PRIMARY KEY AUTOINCREMENT,DOCTYPE TEXT, DOCNO TEXT, DOCSTAT TEXT,DOCDATE DATETIME,PDFNAME TEXT,STATUS TEXT,REMARK TEXT)', {})
-      db.executeSql('CREATE TABLE IF NOT EXISTS LOG_VERSIONS (TABLES TEXT, VERSION INT)', {}).then(() => {
+      db.executeSql('CREATE TABLE IF NOT EXISTS NEWS (id INTEGER PRIMARY KEY AUTOINCREMENT,MSGID INTEGER, TITLE TEXT, MSG TEXT,LINK TEXT,TYPELINK TEXT,LOGTIME DATETIME)', {})
+      db.executeSql('CREATE TABLE IF NOT EXISTS LOG_VERSIONS (TABLES TEXT, VERSION TEXT)', {}).then(() => {
         db.executeSql("SELECT VERSION FROM LOG_VERSIONS WHERE TABLES = 'Table1'", {}).then((data) => {
           //  console.log(data)
           if (data.rows.length <= 0) {
@@ -97,6 +98,14 @@ export class MyApp {
           //  console.log(data)
           if (data.rows.length <= 0) {
             db.executeSql("INSERT INTO LOG_VERSIONS (TABLES,VERSION) VALUES ('All','0')", {})
+
+          }
+
+        })
+         db.executeSql("SELECT VERSION FROM LOG_VERSIONS WHERE TABLES = 'News'", {}).then((data) => {
+          //  console.log(data)
+          if (data.rows.length <= 0) {
+            db.executeSql("INSERT INTO LOG_VERSIONS (TABLES,VERSION) VALUES ('News','2000-11-20 00:25:11.100')", {})
 
           }
 

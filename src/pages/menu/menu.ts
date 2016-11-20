@@ -51,6 +51,7 @@ console.log(object);
           storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='Table3'",{});
           storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='Table4'",{});
           storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='0' WHERE TABLES='All'",{});
+          storage.executeSql("UPDATE LOG_VERSIONS SET VERSION='2000-11-20 00:25:11.100' WHERE TABLES='News'",{});
            this.nav.setRoot(LoginPage,{tokenid:this.tokenid});
                 })
   
